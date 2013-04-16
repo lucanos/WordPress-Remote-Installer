@@ -1,105 +1,95 @@
 <!DOCTYPE html>
 <html>
+<head>
+<meta charset='utf-8' />
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="description" content="Wordpress-remote-installer : Remote install WordPress, Plugins and Themes - Only 1 file uploaded via FTP" />
+<link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+<title>WordPress Remote Installer</title>
+</head>
 
-  <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Wordpress-remote-installer : Allows for the remote installation of Wordpress, Plugins and Themes with only one file being uploaded via FTP" />
+<body>
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+<!-- HEADER -->
+<div id="header_wrap" class="outer">
+  <header class="inner">
+    <a id="forkme_banner" href="https://github.com/lucanos/WordPress-Remote-Installer">View on GitHub</a>
 
-    <title>Wordpress-remote-installer</title>
-  </head>
+    <h1 id="project_title">WordPress Remote Installer</h1>
+    <h2 id="project_tagline">Remote install WordPress, Plugins and Themes - Only 1 file uploaded via FTP</h2>
 
-  <body>
+    <section id="downloads">
+      <a class="zip_download_link" href="https://github.com/lucanos/WordPress-Remote-Installer/zipball/master">Download this project as a .zip file</a>
+      <a class="tar_download_link" href="https://github.com/lucanos/WordPress-Remote-Installer/tarball/master">Download this project as a tar.gz file</a>
+    </section>
+  </header>
+</div>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-      <header class="inner">
-        <a id="forkme_banner" href="https://github.com/lucanos/Wordpress-Remote-Installer">View on GitHub</a>
+<!-- MAIN CONTENT -->
+<div id="main_content_wrap" class="outer">
+  <section id="main_content" class="inner">
 
-        <h1 id="project_title">Wordpress Remote Installer</h1>
-        <h2 id="project_tagline">Allows for the remote installation of Wordpress, Plugins and Themes with only one file being uploaded via FTP</h2>
+    <h1>WordPress Remote Installer</h1>
 
-        <section id="downloads">
-          <a class="zip_download_link" href="https://github.com/lucanos/Wordpress-Remote-Installer/zipball/master">Download this project as a .zip file</a>
-          <a class="tar_download_link" href="https://github.com/lucanos/Wordpress-Remote-Installer/tarball/master">Download this project as a tar.gz file</a>
-        </section>
-      </header>
-    </div>
+    <p>Installing WordPress is relatively easy. Their developers have done alot of work and spent alot of time making the actual installation as easy as possible, but problems persist, specifically getting WordPress onto the actual server to run that installation.</p>
+    <p>Some webhosts offer services allowing for WordPress to be automatically installed into a site, but these installs often contain bloatware in the form of extensions or themes which, frankly, are useless.</p>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h1>Wordpress Remote Installer</h1>
+    <h2>The Old Way</h2>
+    <p>Previously, the only way to install WordPress onto webhosts who do not offer automated installs (or onto webhosts who do, but where you want to avoid that bloatware) was by:</p>
+    <ol>
+      <li>Going to the WordPress website</li>
+      <li>Downloading the latest version of WordPress</li>
+      <li>Extracting WordPress on your computer</li>
+      <li>Connecting to the Server with an FTP client</li>
+      <li>Uploading the numerous WordPress files</li>
+    </ol>
 
-<p>Installing Wordpress is relatively easy. Their developers have done alot of work and spent alot of time making the actual installation as easy as possible, but problems persist, specifically getting Wordpress onto the actual server to run that installation.</p>
+    <h2>The New Way</h2>
+    <p>The WordPress Remote Installer aims to eliminate almost all of these steps, instead, installing WordPress would be as simple as:</p>
+    <ol>
+      <li>Upload <strong>wp-remote-install.php</strong></li>
+      <li>(Optional) Upload <strong>wp-remote-plugins.txt</strong> and/or <strong>wp-remote-themes.txt</strong></li>
+      <li>Go to <strong><a href="http://yourserver.com/wp-remote-install.php">http://yourserver.com/wp-remote-install.php</a></strong></li>
+    </ol>
+    <p>The script then performs all the following for you:</p>
+    <ol>
+      <li>Downloads the latest version of WordPress</li>
+      <li>Extracts it onto your server</li>
+      <li>(Optionally) Downloads and extracts your listed Plugins and/or Themes into the new install of WordPress</li>
+      <li>Deletes itself</li>
+      <li>Redirects you to the WordPress Installer</li>
+    </ol>
+    <p>The bonus being that all of the downloading of WordPress, its Plugins and Themes happen between your server and the WordPress servers - through links far faster than the connection to your home.</p>
 
-<p>Some webhosts offer services allowing for Wordpress to be automatically installed into a site, but these installs often contain bloatware in the form of extensions or themes which, frankly, are useless.</p>
+    <h2>Requirements</h2>
+    <p>In order for this script to work, your webserver must:</p>
+    <ul>
+      <li>Be empty</li>
+      <li>Have <strong>allow_url_fopen</strong> enabled</li>
+    </ul>
+    <p>(Pretty simple requirements, really. Most webservers will satisfy these needs.)</p>
 
-<h2>The Old Way</h2>
+    <h2>Installation</h2>
+    <p>Pretty straight-forward, really...</p>
+    <ol>
+      <li>Connect to your webserver via FTP</li>
+      <li>Upload <strong>wp-remote-install.php</strong></li>
+      <li>Go to <strong><a href="http://yourserver.com/wp-remote-install.php">http://yourserver.com/wp-remote-install.php</a></strong>
+      </li>
+      <li>Complete the WordPress Install</li>
+      <li>Have a beer.</li>
+    </ol>
 
-<p>Previously, the only way to install Wordpress onto webhosts who do not offer automated installs (or onto webhosts who do, but where you want to avoid that bloatware) was by:</p>
+  </section>
+</div>
 
-<ol>
-<li>Going to the Wordpress website</li>
-<li>Downloading the latest version of Wordpress</li>
-<li>Extracting Wordpress on your computer</li>
-<li>Connecting to the Server with an FTP client</li>
-<li>Uploading the numerous Wordpress files</li>
-</ol><h2>The New Way</h2>
+<!-- FOOTER  -->
+<div id="footer_wrap" class="outer">
+  <footer class="inner">
+    <p class="copyright">WordPress Remote Installer maintained by <a href="https://github.com/lucanos">lucanos</a></p>
+    <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+  </footer>
+</div>
 
-<p>The Wordpress Remote Installer aims to eliminate almost all of these steps, instead, installing Wordpress would be as simple as:</p>
-
-<ol>
-<li>Upload <strong>wp-remote-install.php</strong>
-</li>
-<li>(Optional) Upload <strong>wp-remote-plugins.txt</strong> and/or <strong>wp-remote-themes.txt</strong>
-</li>
-<li>Go to <strong><a href="http://yourserver.com/wp-remote-install.php">http://yourserver.com/wp-remote-install.php</a></strong>
-</li>
-</ol><p>The script then performs all the following for you:</p>
-
-<ol>
-<li>Downloads the latest version of Wordpress</li>
-<li>Extracts it onto your server</li>
-<li>(Optionally) Downloads and extracts your listed Plugins and/or Themes into the new install of Wordpress</li>
-<li>Deletes itself</li>
-<li>Redirects you to the Wordpress Installer</li>
-</ol><p>The bonus being that all of the downloading of Wordpress, its Plugins and Themes happen between your server and the Wordpress servers - through links far faster than the connection to your home.</p>
-
-<h2>Requirements</h2>
-
-<p>In order for this script to work, your webserver must:</p>
-
-<ul>
-<li>Be empty</li>
-<li>Have <strong>allow_url_fopen</strong> enabled</li>
-</ul><p>(Pretty simple requirements, really. Most webservers will satisfy these needs.)</p>
-
-<h2>Installation</h2>
-
-<p>Pretty straight-forward, really...</p>
-
-<ol>
-<li>Connect to your webserver via FTP</li>
-<li>Upload <strong>wp-remote-install.php</strong>
-</li>
-<li>Go to <strong><a href="http://yourserver.com/wp-remote-install.php">http://yourserver.com/wp-remote-install.php</a></strong>
-</li>
-<li>Complete the Wordpress Install</li>
-<li>Have a beer.</li>
-</ol>
-      </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Wordpress-remote-installer maintained by <a href="https://github.com/lucanos">lucanos</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-
-  </body>
+</body>
 </html>
