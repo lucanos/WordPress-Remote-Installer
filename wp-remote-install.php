@@ -6,44 +6,11 @@ set_time_limit( 0 );
 // Suggested Plugins and Themes
 $suggestions = array(
 
-  'plugins' => array(
+  # Can be an Array of URLs for each Plugin, or a string URL for a text file with URLs for each Plugin on a new line
+  'plugins' => 'http://lucanos.github.io/WordPress-Remote-Installer/list-plugin.txt' ,
 
-    # Remote Administration
-    'http://downloads.wordpress.org/plugin/wpremote.zip' ,
-
-    # Migration Tool
-    'http://downloads.wordpress.org/plugin/duplicator.zip' ,
-
-    # Login Security
-    'http://downloads.wordpress.org/plugin/login-security-solution.zip' ,
-
-    # Google Analytics
-    'http://downloads.wordpress.org/plugin/google-analyticator.zip' ,
-    # Redirect
-    'http://downloads.wordpress.org/plugin/page-links-to.zip' ,
-    # Cache
-    'http://downloads.wordpress.org/plugin/wp-super-cache.1.3.zip' ,
-    'http://downloads.wordpress.org/plugin/jetpack.2.2.2.zip' ,
-    # Theme Test
-    'http://downloads.wordpress.org/plugin/theme-check.20121211.1.zip' ,
-    # SEO
-    'http://downloads.wordpress.org/plugin/wordpress-seo.1.4.6.zip' ,
-    # SEO Google Sitemap Generator
-    'http://downloads.wordpress.org/plugin/google-sitemap-generator.3.2.9.zip' ,
-    # Facebook Integration
-    'http://downloads.wordpress.org/plugin/facebook.1.3.1.zip'
-
-  ) ,
-
-  'themes' => array(
-
-    'http://wordpress.org/extend/themes/download/responsive.1.9.3.zip' ,
-    'http://wordpress.org/extend/themes/download/spun.1.06.zip' ,
-    'http://wordpress.org/extend/themes/download/pagelines.1.3.9.zip' ,
-    'http://wordpress.org/extend/themes/download/ifeature.5.1.10.zip' ,
-    'http://wordpress.org/extend/themes/download/eclipse.2.0.3.zip'
-
-  )
+ # Can be an Array of URLs for each Theme, or a string URL for a text file with URLs for each Theme on a new line
+  'themes'  => 'http://lucanos.github.io/WordPress-Remote-Installer/list-theme.txt'
 
 );
 
@@ -86,46 +53,74 @@ function extractSubFolder( $zipFile , $target = null , $subFolder = null ){
   return false;
 }
 
+// Function to Cleanse Webroot
+function rrmdir( $dir ){
+  if( is_dir( $dir ) ){
+    $objects = scandir( $dir );
+    foreach( $objects as $object ){
+      if( $object!='.' && $object!='..' ){ 
+        if( filetype( $dir.'/'.$object )=='dir' )
+          rrmdir( $dir.'/'.$object );
+        else
+          unlink( $dir.'/'.$object );
+      }
+    } 
+    reset( $objects );
+    rmdir( $dir );
+  }else{
+    unlink( $dir );
+  }
+}
+function cleanseFolder( $exceptFiles = null ){
+  if( $exceptFiles == null )
+    $exceptFiles[] = basename( __FILE__ );
+  $contents = glob('*');
+  foreach( $contents as $c ){
+    if( !in_array( $c , $exceptFiles ) )
+      rrmdir( $c );
+  }
+}
+
 // Declare Parameters
-$step = 1;
+$step = 0;
 if( isset( $_POST['step'] ) )
   $step = (int) $_POST['step'];
 
 ?><!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
 <head>
-<meta charset="utf-8" />
-<meta http-equiv="X-UA-Compatible" content="chrome=1" />
-<meta name="description" content="WordPress Remote Installer - Remote installation of WordPress, Plugins and Themes with only one file being uploaded via FTP" />
-<link rel="stylesheet" type="text/css" media="screen" href="http://lucanos.github.io/WordPress-Remote-Installer/stylesheets/stylesheet.css" />
-<title>WordPress Remote Installer</title>
-<style>
-form { text-align:right }
-textarea { width:100%;min-height:200px }
-</style>
+<meta name="viewport" content="width=device-width">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>WordPress › Remote Installer</title>
+<link rel="stylesheet" id="combined-css" href="//lucanos.github.io/WordPress-Remote-Installer/stylesheets/combined.css" type="text/css" media="all">
 </head>
-<body>
+<body class="wp-core-ui">
+<h1 id="logo"><a href="http://wordpress.org/">WordPress Remote Installer</a></h1>
 
-<!-- HEADER -->
-<div id="header_wrap" class="outer">
-  <header class="inner">
-    <a id="forkme_banner" href="https://github.com/lucanos/WordPress-Remote-Installer">View on GitHub</a>
-    <h1 id="project_title">WordPress Remote Installer</h1>
-    <h2 id="project_tagline">Remote installation of WordPress, Plugins and Themes with only one file being uploaded via FTP</h2>
-  </header>
-</div>
-
-<!-- MAIN CONTENT -->
-<div id="main_content_wrap" class="outer">
-  <section id="main_content" class="inner">
-
-    <h1>WordPress Remote Installer</h1>
 <?php
 
 switch( $step ){
 
   default :
+  case 0 :
+
+?>
+<!-- STEP 0 //-->
+<h1>WordPress Remote Installer</h1>
+<p>The WordPress Remote Installer is a script designed to streamline the installation of the WordPress Content Management System. Some users have limited experience using FTP, some webhosts do not allow files to be decompressed after being uploaded, and some people want to make their WordPress installs faster and simpler.</p>
+<p>Using the WordPress Remote Installer is simple - upload a single PHP file to your server, access it via a web-browser and simply follow the prompts through 7 easy steps, at the end of which, the Wordpress Installer will commence.</p>
+<form method="post">
+  <input type="hidden" name="step" value="1" />
+  <input type="submit" name="submit" value="Let's Get Started!" class="button button-large" />
+</form>
+<?php
+
+    break;
+
   case 1 :
+
+    if( isset( $_POST['action'] ) && $_POST['action']=='cleanse' )
+      cleanseFolder();
 
     $tests = array(
       array(
@@ -134,193 +129,347 @@ switch( $step ){
         'fail' => '<strong>allow_url_open</strong> is Disabled'
       ) ,
       array(
-        'result' => ( glob( '*' ) == array( 'wp-remote-install.php' ) ) ,
+        'result' => ( glob( '*' ) == array( basename( __FILE__ ) ) ) ,
         'pass' => 'The server is empty (apart from this file)' ,
         'fail' => 'The server is not empty.'
       )
-    )
+    );
 ?>
-    <h2>Pre-Install Checks</h2>
-    <ul>
+<!-- STEP 1 //-->
+<h1>Step 1/7: Pre-Install Checks</h1>
 <?php
+    if( isset( $_POST['action'] ) && $_POST['action']=='cleanse' ){
+?>
+<p>All Files Deleted from the Directory as requested.</p>
+<?php
+    }
+?>
+<ul>
+<?php
+
     $proceed = true;
     foreach( $tests as $t ){
       if( !$t['result'] )
         $proceed = false;
 ?>
-      <li class="<?php echo ( $t['result'] ? 'pass' : 'fail' ); ?>"><?php echo $t[( $t['result'] ? 'pass' : 'fail' )]; ?></li>
+  <li class="<?php echo ( $t['result'] ? 'pass' : 'fail' ); ?>"><?php echo $t[( $t['result'] ? 'pass' : 'fail' )]; ?></li>
 <?php
     }
 ?>
-    </ul>
+</ul>
 <?php
     if( !$proceed ){
 ?>
-    <p>NOTE: We are unable to proceed until the above issue(s) are resolved.</p>
+<p>NOTE: We are unable to proceed until the above issue(s) are resolved.</p>
+<form method="post">
+  <input type="hidden" name="step" value="1" />
+  <input type="hidden" name="action" value="cleanse" />
+  <input type="submit" name="submit" value="Delete All Files from Directory to Proceed" class="button button-large confirm" data-msg="Are you sure? All files, Wordpress-related or not, will be removed. Delete files are unrecoverable." />
+</form>
 <?php
     }else{
 ?>
-    <form method="post">
-      <input type="hidden" name="step" value="2" />
-      <input type="submit" name="submit" value="Commence Install of WordPress"/>
-    </form>
+<form method="post">
+  <input type="hidden" name="step" value="2" />
+  <input type="submit" name="submit" value="Commence Install of WordPress" class="button button-large" />
+</form>
 <?php
     }
+
     break;
 
   case 2 :
+
 ?>
-    <h2>Installing WordPress</h2>
-    <ul>
-      <li>Downloading Latest WordPress from Wordpress.org - <?php echo ( ( $wordpressInstaller = @file_get_contents( 'https://wordpress.org/latest.zip' ) ) ? 'OK' : 'FAILED' ); ?></li>
-      <li>Save Latest WordPress Locally - <?php echo ( file_put_contents( 'wordpress.zip' , $wordpressInstaller ) ? 'OK' : 'FAILED' ); ?></li>
-      <li>Extract WordPress - <?php echo ( extractSubFolder( 'wordpress.zip' , null , 'wordpress' ) ? 'OK' : 'FAILED' ); ?></li>
-      <li>Delete WordPress ZIP - <?php echo ( unlink( 'wordpress.zip' ) ? 'OK' : 'FAILED' ); ?></li>
-    </ul>
-    <form method="post">
-      <input type="hidden" name="step" value="3" />
-      <input type="submit" name="submit" value="Select Plugins" />
-    </form>
+<!-- STEP 2 //-->
+<h1>Step 2/7: Installing Wordpress</h1>
+<ul>
 <?php
+    $proceed = true;
+
+    if( $wordpressInstaller = @file_get_contents( 'https://wordpress.org/latest.zip' ) ){
+?>
+  <li class="pass">Downloading Latest WordPress from Wordpress.org - OK</li>
+<?php
+    }else{
+      $proceed = false;
+?>
+  <li class="fail">Downloading Latest WordPress from Wordpress.org - FAILED</li>
+<?php
+    }
+
+    if( !$proceed ){
+?>
+  <li class="skip">Save Latest WordPress Locally - SKIPPED</li>
+<?php
+    }elseif( file_put_contents( 'wordpress.zip' , $wordpressInstaller ) ){
+?>
+  <li class="pass">Save Latest WordPress Locally - OK</li>
+<?php
+    }else{
+      $proceed = false;
+?>
+  <li class="fail">Save Latest WordPress Locally - FAILED</li>
+<?php
+    }
+
+    if( !$proceed ){
+?>
+  <li class="skip">Extract WordPress - SKIPPED</li>
+<?php
+    }elseif( extractSubFolder( 'wordpress.zip' , null , 'wordpress' ) ){
+?>
+  <li class="pass">Extract WordPress - OK</li>
+<?php
+    }else{
+      $proceed = false;
+?>
+  <li class="fail">Extract WordPress - FAILED</li>
+<?php
+    }
+
+    if( !$proceed ){
+?>
+  <li class="skip">Delete WordPress ZIP - SKIPPED</li>
+<?php
+    }elseif( unlink( 'wordpress.zip' ) ){
+?>
+  <li class="pass">Delete WordPress ZIP - OK</li>
+<?php
+    }else{
+      $proceed = false;
+?>
+  <li class="fail">Delete WordPress ZIP - FAILED</li>
+<?php
+    }
+?>
+</ul>
+<?php
+
+    if( !$proceed ){
+?>
+<p>NOTE: We are unable to proceed until the above issue(s) are resolved.</p>
+<?php
+    }else{
+?>
+<form method="post">
+  <input type="hidden" name="step" value="3" />
+  <input type="submit" name="submit" value="Next Step - Plugins" class="button button-large" />
+</form>
+<?php
+    }
+
     break;
 
   case 3 :
+  
+    $suggest = '';
+    if( is_array( $suggestions['plugins'] ) ){
+      $suggest = implode( "\n" , $suggestions['plugins'] );
+    }elseif( is_string( $suggestions['plugins'] ) ){
+      if( !( $suggest = @file_get_contents( $suggestions['plugins'] ) ) )
+        $suggest = '';
+    }
+
 ?>
-    <h2>Installing WordPress Plugins</h2>
-    <p>List the Download URLs for all WordPress Plugins, one per line</p>
-    <form method="post">
-      <textarea name="plugins"><?php echo implode( "\n" , $suggestions['plugins'] ); ?></textarea>
-      <input type="hidden" name="step" value="4" />
-      <input type="submit" name="submit" value="Install Plugins" />
-    </form>
+<!-- STEP 3 //-->
+<h1>Step 3/7: Installing Plugins</h1>
+<p>List the Download URLs for all WordPress Plugins, one per line</p>
+<form method="post">
+  <textarea name="plugins"><?php echo $suggest; ?></textarea>
+  <input type="hidden" name="step" value="4" />
+  <input type="submit" name="submit" value="Install Plugins" class="button button-large" />
+</form>
 <?php
+
     break;
 
   case 4 :
-?>
-    <h2>Installing WordPress Plugins</h2>
-    <ul>
-      <li>Delete Unneeded "Hello Dolly" Plugin - <?php echo ( ( !file_exists( @unlink( dirname( __FILE__ ).'/wp-content/plugins/hello.php' ) || dirname( __FILE__ ).'/wp-content/plugins/hello.php' ) ) ? 'OK' : 'FAILED' ); ?></li>
-<?php
 
-if( isset( $_POST['plugins'] ) ){
-  $plugins = explode( "\n" , $_POST['plugins'] );
-  foreach( $plugins as $url ){
-    $url = trim( $url );
-    if( strpos( $url , 'http' )!==0 )
-      $url = 'http://'.$url;
-    if( preg_match( '/^(http?\:\/\/?downloads\.wordpress\.org\/plugin\/)([^\.]+)((?:\.\d+)+)?\.zip$/' , $url , $bits ) )
-      $url = $bits[1].$bits[2].'.zip';
 ?>
-      <li>Installing <strong><?php echo $bits[2]; ?></strong> -
+<!-- STEP 4 //-->
+<h1>Step 4/7: Installing Plugins</h1>
+<ul>
 <?php
-    $get = @file_get_contents( $url );
-    if( !$get ){
-      echo 'FAILED TO DOWNLOAD';
-    }else{
-      file_put_contents( 'temp_plugin.zip' , $get );
-      if( !extractSubFolder( 'temp_plugin.zip' , dirname( __FILE__ ).'/wp-content/plugins' ) ){
-        echo 'FAILED TO EXTRACT';
-      }else{
-        echo 'OK';
+    $plugin_result = ( !file_exists( @unlink( dirname( __FILE__ ).'/wp-content/plugins/hello.php' ) || dirname( __FILE__ ).'/wp-content/plugins/hello.php' ) );
+?>
+  <li class="<?php echo ( $plugin_result ? 'pass' : 'fail' ); ?>">Delete Unneeded "Hello Dolly" Plugin - <?php echo ( $plugin_result ? 'OK' : 'FAILED' ); ?></li>
+<?php    
+    if( isset( $_POST['plugins'] ) ){
+      $plugins = explode( "\n" , $_POST['plugins'] );
+      foreach( $plugins as $url ){
+        $plugin_result = false;
+        $plugin_message = 'UNKNOWN';
+        $url = trim( $url );
+        if( strpos( $url , 'http' )!==0 )
+          $url = 'http://'.$url;
+        if( preg_match( '/^(http?\:\/\/?downloads\.wordpress\.org\/plugin\/)([^\.]+)((?:\.\d+)+)?\.zip$/' , $url , $bits ) )
+          $url = $bits[1].$bits[2].'.zip';
+        $get = @file_get_contents( $url );
+        if( !$get ){
+          $plugin_message = 'FAILED TO DOWNLOAD';
+        }else{
+          file_put_contents( 'temp_plugin.zip' , $get );
+          if( !extractSubFolder( 'temp_plugin.zip' , dirname( __FILE__ ).'/wp-content/plugins' ) ){
+            $plugin_message = 'FAILED TO EXTRACT';
+          }else{
+            $plugin_result = true;
+            $plugin_message = 'OK';
+          }
+          @unlink( 'temp_plugin.zip' );
+        }
+?>
+  <li class="<?php echo ( $plugin_result ? 'pass' : 'fail' ); ?>">Installing <strong><?php echo $bits[2]; ?></strong> - <?php echo $plugin_message; ?></li>
+<?php
       }
-      @unlink( 'temp_plugin.zip' );
     }
-    echo '</li>';
-  }
-}
-
 ?>
-    </ul>
-    <form method="post">
-      <input type="hidden" name="step" value="5" />
-      <input type="submit" name="submit" value="Select Themes" />
-    </form>
+</ul>
+<form method="post">
+  <input type="hidden" name="step" value="5" />
+  <input type="submit" name="submit" value="Next Step - Themes" class="button button-large" />
+</form>
 <?php
+
     break;
 
   case 5 :
+  
+    $suggest = '';
+    if( is_array( $suggestions['themes'] ) ){
+      $suggest = implode( "\n" , $suggestions['themes'] );
+    }elseif( is_string( $suggestions['themes'] ) ){
+      if( !( $suggest = @file_get_contents( $suggestions['themes'] ) ) )
+        $suggest = '';
+    }
+
 ?>
-    <h2>Installing WordPress Themes</h2>
-    <p>List the Download URLs for all WordPress Themes, one per line</p>
-    <form method="post">
-      <textarea name="themes"><?php echo implode( "\n" , $suggestions['themes'] ); ?></textarea>
-      <input type="hidden" name="step" value="6" />
-      <input type="submit" name="submit" value="Install Themes" />
-    </form>
+<!-- STEP 5 //-->
+<h1>Step 5/7: Installing Themes</h1>
+<p>List the Download URLs for all WordPress Themes, one per line</p>
+<form method="post">
+  <textarea name="themes"><?php echo $suggest; ?></textarea>
+  <input type="hidden" name="step" value="6" />
+  <input type="submit" name="submit" value="Install Themes" class="button button-large" />
+</form>
 <?php
+
     break;
 
   case 6 :
+
 ?>
-    <h2>Installing WordPress Themes</h2>
-    <ul>
+<!-- STEP 6 //-->
+<h1>Step 6/7: Installing Themes</h1>
+<ul>
 <?php
 
-if( isset( $_POST['themes'] ) ){
-  $plugins = explode( "\n" , $_POST['themes'] );
-  foreach( $plugins as $url ){
-    $url = trim( $url );
-    if( !$url ) continue;
-    if( strpos( $url , 'http' )!==0 )
-      $url = 'http://'.$url;
-    preg_match( '/^(http?\:\/\/?wordpress.org\/extend\/themes\/download\/)([^\.]+)((?:\.\d+)+)\.zip$/' , $url , $bits );
+    if( isset( $_POST['themes'] ) ){
+      $themes = explode( "\n" , $_POST['themes'] );
+      foreach( $themes as $url ){
+        $theme_result = false;
+        $theme_message = 'UNKNOWN';
+        $url = trim( $url );
+        if( !$url ) continue;
+        if( strpos( $url , 'http' )!==0 )
+          $url = 'http://'.$url;
+        preg_match( '/^(http?\:\/\/?wordpress.org\/extend\/themes\/download\/)([^\.]+)((?:\.\d+)+)\.zip$/' , $url , $bits );
+        $get = @file_get_contents( $url );
+        if( !$get ){
+          $theme_message = 'FAILED TO DOWNLOAD';
+        }else{
+          file_put_contents( 'temp_theme.zip' , $get );
+          if( !extractSubFolder( 'temp_theme.zip' , dirname( __FILE__ ).'/wp-content/themes' ) ){
+            $theme_message = 'FAILED TO EXTRACT';
+          }else{
+            $theme_result = true;
+            $theme_message = 'OK';
+          }
 ?>
-      <li>Installing <strong><?php echo $bits[2]; ?>.zip</strong> -
+  <li class="<?php echo ( $theme_result ? 'pass' : 'fail' ); ?>">Installing <strong><?php echo $bits[2]; ?>.zip</strong> - <?php echo $theme_message; ?></li>
 <?php
-    $get = @file_get_contents( $url );
-    if( !$get ){
-      echo 'FAILED TO DOWNLOAD';
-    }else{
-      file_put_contents( 'temp_theme.zip' , $get );
-      if( !extractSubFolder( 'temp_theme.zip' , dirname( __FILE__ ).'/wp-content/themes' ) ){
-        echo 'FAILED TO EXTRACT';
-      }else{
-        echo 'OK';
+          @unlink( 'temp_theme.zip' );
+        }
+        echo '</li>';
       }
-      @unlink( 'temp_theme.zip' );
     }
-    echo '</li>';
-  }
-}
 
 ?>
-    </ul>
-    <form method="post">
-      <input type="hidden" name="step" value="7" />
-      <input type="submit" name="submit" value="Clean Up" />
-    </form>
+</ul>
+<form method="post">
+  <input type="hidden" name="step" value="7" />
+  <input type="submit" name="submit" value="Next Step - Clean Up" class="button button-large" />
+</form>
 <?php
+
     break;
 
   case 7 :
-?>
-    <h2>Cleaning Up</h2>
-    <ul>
-      <li>Remove WordPress Installer - <?php echo ( !file_exists( 'wordpress.zip' ) || @unlink( 'wordpress.zip' ) ? 'OK' : 'FAILED' ); ?></li>
-      <li>Remove Temporary Plugin File - <?php echo ( !file_exists( 'temp_plugin.zip' ) || @unlink( 'temp_plugin.zip' ) ? 'OK' : 'FAILED' ); ?></li>
-      <li>Remove Temporary Theme File - <?php echo ( !file_exists( 'temp_theme.zip' ) || @unlink( 'temp_theme.zip' ) ? 'OK' : 'FAILED' ); ?></li>
-      <li>Remove WordPress Remote Installer - <?php echo ( !file_exists( __FILE__ ) || @unlink( __FILE__ ) ? 'OK' : 'FAILED' ); ?></li>
-    </ul>
-    <form method="post" action="./wp-admin/setup-config.php">
-      <input type="submit" name="submit" value="Launch WordPress Installer" />
-    </form>
-<?php
-    break;
 
+?>
+<!-- STEP 7 //-->
+<h1>Step 7/7: Cleaning Up</h1>
+<ul>
+<?php
+
+    $tests = array(
+      array(
+        'result' => ( !file_exists( 'wordpress.zip' ) || @unlink( 'wordpress.zip' ) ) ,
+        'pass' => 'Remove WordPress Installer - OK' ,
+        'fail' => 'Remove WordPress Installer - FAILED'
+      ) ,
+      array(
+        'result' => ( !file_exists( 'temp_plugin.zip' ) || @unlink( 'temp_plugin.zip' ) ) ,
+        'pass' => 'Remove Temporary Plugin File - OK' ,
+        'fail' => 'Remove Temporary Plugin File - FAILED'
+      ) ,
+      array(
+        'result' => ( !file_exists( 'temp_theme.zip' ) || @unlink( 'temp_theme.zip' ) ) ,
+        'pass' => 'Remove Temporary Theme File - OK' ,
+        'fail' => 'Remove Temporary Theme File - FAILED'
+      ) ,
+      array(
+        'result' => ( !file_exists( __FILE__ ) || @unlink( __FILE__ ) ) ,
+        'pass' => 'Remove WordPress Remote Installer - OK' ,
+        'fail' => 'Remove WordPress Remote Installer - FAILED'
+      ) ,
+    );
+    
+    foreach( $tests as $t ){
+?>
+  <li class="<?php echo ( $t['result'] ? 'pass' : 'fail' ); ?>"><?php echo $t[( $t['result'] ? 'pass' : 'fail' )]; ?></li>
+<?php
+    }
+?>
+</ul>
+<form method="post" action="./wp-admin/setup-config.php">
+  <input type="submit" name="submit" value="Launch WordPress Installer" class="button button-large" />
+</form>
+<?php
+
+    break;
 }
 
 ?>
-  </section>
+
+<div id="footer">
+  <a href="https://github.com/lucanos/WordPress-Remote-Installer" class="github">View on GitHub</a>
+  Created by <a href="http://lucanos.com">Luke Stevenson</a><br/>
+  <div class="legal">
+    <strong>NOTE:</strong> This script is not an official WordPress product.<br/>
+    The WordPress logo is the property of the WordPress Foundation.
+  </div>
 </div>
 
-<!-- FOOTER  -->
-<div id="footer_wrap" class="outer">
-  <footer class="inner">
-    <p class="copyright">WordPress Remote Installer maintained by <a href="https://github.com/lucanos">lucanos</a></p>
-    <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-  </footer>
-</div>
-
+<script src="//code.jquery.com/jquery.min.js"></script>
+<script src="//lucanos.github.io/WordPress-Remote-Installer/javascripts/installer.js"></script>
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-238524-32', 'auto');
+ga('send', 'pageview', 'step<?php echo $step; ?>');
+</script>
 </body>
 </html>
