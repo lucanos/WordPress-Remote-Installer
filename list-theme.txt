@@ -1,0 +1,5 @@
+http://wordpress.org/extend/themes/download/responsive.1.9.5.5.zip
+http://wordpress.org/extend/themes/download/spun.2.0.2.zip
+http://wordpress.org/extend/themes/download/pagelines.1.4.5.zip
+http://wordpress.org/extend/themes/download/ifeature.5.1.64.zip
+http://wordpress.org/extend/themes/download/eclipse.2.0.58.zip
