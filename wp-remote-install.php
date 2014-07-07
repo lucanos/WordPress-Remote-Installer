@@ -5,7 +5,7 @@ set_time_limit( 0 );
 error_reporting( E_ALL );
 
 // Version Information
-define( 'WPRI_VERSION' , '0.1' );
+define( 'WPRI_VERSION' , '0.2' );
 
 // Suggested Plugins and Themes
 $suggestions = array(
