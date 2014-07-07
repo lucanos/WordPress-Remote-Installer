@@ -2,6 +2,7 @@
 
 // Global Configuration
 set_time_limit( 0 );
+error_reporting( E_ALL );
 
 // Suggested Plugins and Themes
 $suggestions = array(
@@ -81,6 +82,27 @@ function cleanseFolder( $exceptFiles = null ){
   }
 }
 
+function downloadFromURL( $url = null , $local = null ){
+  $result = null;
+  if( is_null( $local ) )
+    $local = basename( $url );
+  if( $content = @file_get_contents( $url ) ){
+    $result = @file_put_contents( $local , $content );
+  }elseif( function_exists( 'curl_init' ) ){
+    $fp = fopen( dirname(__FILE__) . '/' . $local , 'w+' );
+    $ch = curl_init( str_replace( ' ' , '%20' , $url ) );
+    curl_setopt($ch , CURLOPT_TIMEOUT        , 50 );
+    curl_setopt($ch , CURLOPT_FILE           , $fp );
+    curl_setopt($ch , CURLOPT_FOLLOWLOCATION , true );
+    $result = curl_exec( $ch );
+    curl_close( $ch );
+    fclose( $fp );
+  }else{
+    $result = false;
+  }
+  return $result;
+}
+
 // Declare Parameters
 $step = 0;
 if( isset( $_POST['step'] ) )
@@ -91,7 +113,7 @@ if( isset( $_POST['step'] ) )
 <head>
 <meta name="viewport" content="width=device-width">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>WordPress › Remote Installer</title>
+<title>WordPress &gt; Remote Installer</title>
 <link rel="stylesheet" id="combined-css" href="//lucanos.github.io/WordPress-Remote-Installer/stylesheets/combined.css" type="text/css" media="all">
 </head>
 <body class="wp-core-ui">
@@ -187,7 +209,7 @@ switch( $step ){
 <?php
     $proceed = true;
 
-    if( $wordpressInstaller = @file_get_contents( 'https://wordpress.org/latest.zip' ) ){
+    if( downloadFromURL( 'https://wordpress.org/latest.zip' , 'wordpress.zip' ) ){
 ?>
   <li class="pass">Downloading Latest WordPress from Wordpress.org - OK</li>
 <?php
@@ -195,21 +217,6 @@ switch( $step ){
       $proceed = false;
 ?>
   <li class="fail">Downloading Latest WordPress from Wordpress.org - FAILED</li>
-<?php
-    }
-
-    if( !$proceed ){
-?>
-  <li class="skip">Save Latest WordPress Locally - SKIPPED</li>
-<?php
-    }elseif( file_put_contents( 'wordpress.zip' , $wordpressInstaller ) ){
-?>
-  <li class="pass">Save Latest WordPress Locally - OK</li>
-<?php
-    }else{
-      $proceed = false;
-?>
-  <li class="fail">Save Latest WordPress Locally - FAILED</li>
 <?php
     }
 
