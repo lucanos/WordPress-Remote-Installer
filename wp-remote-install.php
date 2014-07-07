@@ -152,7 +152,7 @@ switch( $step ){
 <?php
     if( version_compare( WPRI_VERSION , $githubVersion = getGithubVersion() , '<' ) ){
 ?>
-<p>You are using Version <?php echo WPRI_VERSION; ?>. Version <?php echo $githubVersion; ?> is available through <a href="https://github.com/lucanos/WordPress-Remote-Installer">Github</a>.</p>
+<p class="version_alert">You are using Version <?php echo WPRI_VERSION; ?>. Version <?php echo $githubVersion; ?> is available through <a href="https://github.com/lucanos/WordPress-Remote-Installer">Github</a>.</p>
 <?php
     }
 ?>
