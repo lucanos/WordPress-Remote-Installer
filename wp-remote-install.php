@@ -105,7 +105,7 @@ function downloadFromURL( $url = null , $local = null ){
   return $result;
 }
 function getGithubVersion(){
-  $versionURL = 'https://raw.githubusercontent.com/lucanos/WordPress-Remote-Installer/master/version.txt';
+  $versionURL = 'https://lucanos.github.io/WordPress-Remote-Installer/version.txt';
   $remoteVersion = null;
   if( !( $remoteVersion = @file_get_contents( $versionURL ) )
       && function_exists( 'curl_init' ) ){
