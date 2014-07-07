@@ -4,6 +4,9 @@
 set_time_limit( 0 );
 error_reporting( E_ALL );
 
+// Version Information
+define( 'WPRI_VERSION' , '0.1' );
+
 // Suggested Plugins and Themes
 $suggestions = array(
 
@@ -81,7 +84,6 @@ function cleanseFolder( $exceptFiles = null ){
       rrmdir( $c );
   }
 }
-
 function downloadFromURL( $url = null , $local = null ){
   $result = null;
   if( is_null( $local ) )
@@ -101,6 +103,22 @@ function downloadFromURL( $url = null , $local = null ){
     $result = false;
   }
   return $result;
+}
+function getGithubVersion(){
+  $versionURL = 'https://raw.githubusercontent.com/lucanos/WordPress-Remote-Installer/master/version.txt';
+  $remoteVersion = null;
+  if( !( $remoteVersion = @file_get_contents( $versionURL ) )
+      && function_exists( 'curl_init' ) ){
+    $fp = fopen( dirname(__FILE__) . '/' . $local , 'w+' );
+    $ch = curl_init( str_replace( ' ' , '%20' , $url ) );
+    curl_setopt($ch , CURLOPT_TIMEOUT        , 50 );
+    curl_setopt($ch , CURLOPT_FILE           , $fp );
+    curl_setopt($ch , CURLOPT_FOLLOWLOCATION , true );
+    $remoteVersion = curl_exec( $ch );
+    curl_close( $ch );
+    fclose( $fp );
+  }
+  return $remoteVersion;
 }
 
 // Declare Parameters
@@ -131,6 +149,13 @@ switch( $step ){
 <h1>WordPress Remote Installer</h1>
 <p>The WordPress Remote Installer is a script designed to streamline the installation of the WordPress Content Management System. Some users have limited experience using FTP, some webhosts do not allow files to be decompressed after being uploaded, and some people want to make their WordPress installs faster and simpler.</p>
 <p>Using the WordPress Remote Installer is simple - upload a single PHP file to your server, access it via a web-browser and simply follow the prompts through 7 easy steps, at the end of which, the Wordpress Installer will commence.</p>
+<?php
+    if( version_compare( WPRI_VERSION , $githubVersion = getGithubVersion() , '<' ) ){
+?>
+<p>You are using Version <?php echo WPRI_VERSION; ?>. Version <?php echo $githubVersion; ?> is available through <a href="https://github.com/lucanos/WordPress-Remote-Installer">Github</a>.</p>
+<?php
+    }
+?>
 <form method="post">
   <input type="hidden" name="step" value="1" />
   <input type="submit" name="submit" value="Let's Get Started!" class="button button-large" />
