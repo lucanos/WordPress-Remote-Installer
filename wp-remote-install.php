@@ -4,17 +4,21 @@
 set_time_limit( 0 );
 error_reporting( E_ALL );
 
+// GitHub Information
+define( 'GITHUB_USERNAME' , 'lucanos' );
+define( 'GITHUB_PROJECT'  , 'WordPress-Remote-Installer' );
+
 // Version Information
-define( 'WPRI_VERSION' , '0.2' );
+define( 'WPRI_VERSION'    , '0.3' );
 
 // Suggested Plugins and Themes
 $suggestions = array(
 
   # Can be an Array of URLs for each Plugin, or a string URL for a text file with URLs for each Plugin on a new line
-  'plugins' => 'http://lucanos.github.io/WordPress-Remote-Installer/list-plugin.txt' ,
+  'plugins' => 'http://' . GITHUB_USERNAME . '.github.io/' . GITHUB_PROJECT .'/list-plugin.txt' ,
 
  # Can be an Array of URLs for each Theme, or a string URL for a text file with URLs for each Theme on a new line
-  'themes'  => 'http://lucanos.github.io/WordPress-Remote-Installer/list-theme.txt'
+  'themes'  => 'http://' . GITHUB_USERNAME . '.github.io/' . GITHUB_PROJECT .'/list-theme.txt'
 
 );
 
@@ -105,7 +109,7 @@ function downloadFromURL( $url = null , $local = null ){
   return $result;
 }
 function getGithubVersion(){
-  $versionURL = 'https://lucanos.github.io/WordPress-Remote-Installer/version.txt';
+  $versionURL = 'https://' . GITHUB_USERNAME . '.github.io/' . GITHUB_PROJECT .'/version.txt';
   $remoteVersion = null;
   if( !( $remoteVersion = @file_get_contents( $versionURL ) )
       && function_exists( 'curl_init' ) ){
@@ -132,7 +136,7 @@ if( isset( $_POST['step'] ) )
 <meta name="viewport" content="width=device-width">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>WordPress &gt; Remote Installer</title>
-<link rel="stylesheet" id="combined-css" href="//lucanos.github.io/WordPress-Remote-Installer/stylesheets/combined.css" type="text/css" media="all">
+<link rel="stylesheet" id="combined-css" href="//<?php echo GITHUB_USERNAME; ?>.github.io/<?php echo GITHUB_PROJECT; ?>/stylesheets/combined.css" type="text/css" media="all">
 </head>
 <body class="wp-core-ui">
 <h1 id="logo"><a href="http://wordpress.org/">WordPress Remote Installer</a></h1>
@@ -152,7 +156,7 @@ switch( $step ){
 <?php
     if( version_compare( WPRI_VERSION , $githubVersion = getGithubVersion() , '<' ) ){
 ?>
-<p class="version_alert">You are using Version <?php echo WPRI_VERSION; ?>. Version <?php echo $githubVersion; ?> is available through <a href="https://github.com/lucanos/WordPress-Remote-Installer">Github</a>.</p>
+<p class="version_alert">You are using Version <?php echo WPRI_VERSION; ?>. Version <?php echo $githubVersion; ?> is available through <a href="https://github.com/<?php echo GITHUB_USERNAME; ?>/<?php echo GITHUB_PROJECT; ?>">Github</a>.</p>
 <?php
     }
 ?>
@@ -328,14 +332,14 @@ switch( $step ){
   <li class="<?php echo ( $plugin_result ? 'pass' : 'fail' ); ?>">Delete Unneeded "Hello Dolly" Plugin - <?php echo ( $plugin_result ? 'OK' : 'FAILED' ); ?></li>
 <?php    
     if( isset( $_POST['plugins'] ) ){
-      $plugins = explode( "\n" , $_POST['plugins'] );
+      $plugins = array_filter( explode( "\n" , $_POST['plugins'] ) );
       foreach( $plugins as $url ){
         $plugin_result = false;
         $plugin_message = 'UNKNOWN';
         $url = trim( $url );
         if( strpos( $url , 'http' )!==0 )
           $url = 'http://'.$url;
-        if( preg_match( '/^(http?\:\/\/?downloads\.wordpress\.org\/plugin\/)([^\.]+)((?:\.\d+)+)?\.zip$/' , $url , $bits ) )
+        if( preg_match( '/^(https?\:\/\/?downloads\.wordpress\.org\/plugin\/)([^\.]+)((?:\.\d+)+)?\.zip$/' , $url , $bits ) )
           $url = $bits[1].$bits[2].'.zip';
         $get = @file_get_contents( $url );
         if( !$get ){
@@ -397,7 +401,7 @@ switch( $step ){
 <?php
 
     if( isset( $_POST['themes'] ) ){
-      $themes = explode( "\n" , $_POST['themes'] );
+      $themes = array_filter( explode( "\n" , $_POST['themes'] ) );
       foreach( $themes as $url ){
         $theme_result = false;
         $theme_message = 'UNKNOWN';
@@ -405,7 +409,7 @@ switch( $step ){
         if( !$url ) continue;
         if( strpos( $url , 'http' )!==0 )
           $url = 'http://'.$url;
-        preg_match( '/^(http?\:\/\/?wordpress.org\/extend\/themes\/download\/)([^\.]+)((?:\.\d+)+)\.zip$/' , $url , $bits );
+        preg_match( '/^(https?\:\/\/?wordpress.org\/extend\/themes\/download\/)([^\.]+)((?:\.\d+)+)\.zip$/' , $url , $bits );
         $get = @file_get_contents( $url );
         if( !$get ){
           $theme_message = 'FAILED TO DOWNLOAD';
@@ -485,7 +489,7 @@ switch( $step ){
 ?>
 
 <div id="footer">
-  <a href="https://github.com/lucanos/WordPress-Remote-Installer" class="github">View on GitHub</a>
+  <a href="https://github.com/<?php echo GITHUB_USERNAME; ?>/<?php echo GITHUB_PROJECT; ?>" class="github">View on GitHub</a>
   Created by <a href="http://lucanos.com">Luke Stevenson</a><br/>
   <div class="legal">
     <strong>NOTE:</strong> This script is not an official WordPress product.<br/>
@@ -494,7 +498,7 @@ switch( $step ){
 </div>
 
 <script src="//code.jquery.com/jquery.min.js"></script>
-<script src="//lucanos.github.io/WordPress-Remote-Installer/javascripts/installer.js"></script>
+<script src="//<?php echo GITHUB_USERNAME; ?>.github.io/<?php echo GITHUB_PROJECT; ?>/javascripts/installer.js"></script>
 <script>
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
