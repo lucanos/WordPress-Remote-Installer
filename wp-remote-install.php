@@ -66,13 +66,13 @@ function rrmdir( $dir ){
   if( is_dir( $dir ) ){
     $objects = scandir( $dir );
     foreach( $objects as $object ){
-      if( $object!='.' && $object!='..' ){ 
+      if( $object!='.' && $object!='..' ){
         if( filetype( $dir.'/'.$object )=='dir' )
           rrmdir( $dir.'/'.$object );
         else
           unlink( $dir.'/'.$object );
       }
-    } 
+    }
     reset( $objects );
     rmdir( $dir );
   }else{
@@ -113,14 +113,11 @@ function getGithubVersion(){
   $remoteVersion = null;
   if( !( $remoteVersion = @file_get_contents( $versionURL ) )
       && function_exists( 'curl_init' ) ){
-    $fp = fopen( dirname(__FILE__) . '/' . $local , 'w+' );
-    $ch = curl_init( str_replace( ' ' , '%20' , $url ) );
+    $ch = curl_init( str_replace( ' ' , '%20' , $versionURL ) );
     curl_setopt($ch , CURLOPT_TIMEOUT        , 50 );
-    curl_setopt($ch , CURLOPT_FILE           , $fp );
     curl_setopt($ch , CURLOPT_FOLLOWLOCATION , true );
     $remoteVersion = curl_exec( $ch );
     curl_close( $ch );
-    fclose( $fp );
   }
   return $remoteVersion;
 }
@@ -180,7 +177,7 @@ switch( $step ){
         'fail' => '<strong>allow_url_open</strong> is Disabled'
       ) ,
       array(
-        'result' => ( glob( '*' ) == array( basename( __FILE__ ) ) ) ,
+        'result' => array_diff( glob( '*' ) , array( basename( __FILE__ ) , 'version.txt' ) ) ,
         'pass' => 'The server is empty (apart from this file)' ,
         'fail' => 'The server is not empty.'
       )
@@ -298,7 +295,7 @@ switch( $step ){
     break;
 
   case 3 :
-  
+
     $suggest = '';
     if( is_array( $suggestions['plugins'] ) ){
       $suggest = implode( "\n" , $suggestions['plugins'] );
@@ -330,7 +327,7 @@ switch( $step ){
     $plugin_result = ( !file_exists( @unlink( dirname( __FILE__ ).'/wp-content/plugins/hello.php' ) || dirname( __FILE__ ).'/wp-content/plugins/hello.php' ) );
 ?>
   <li class="<?php echo ( $plugin_result ? 'pass' : 'fail' ); ?>">Delete Unneeded "Hello Dolly" Plugin - <?php echo ( $plugin_result ? 'OK' : 'FAILED' ); ?></li>
-<?php    
+<?php
     if( isset( $_POST['plugins'] ) ){
       $plugins = array_filter( explode( "\n" , $_POST['plugins'] ) );
       foreach( $plugins as $url ){
@@ -370,7 +367,7 @@ switch( $step ){
     break;
 
   case 5 :
-  
+
     $suggest = '';
     if( is_array( $suggestions['themes'] ) ){
       $suggest = implode( "\n" , $suggestions['themes'] );
@@ -470,7 +467,7 @@ switch( $step ){
         'fail' => 'Remove WordPress Remote Installer - FAILED'
       ) ,
     );
-    
+
     foreach( $tests as $t ){
 ?>
   <li class="<?php echo ( $t['result'] ? 'pass' : 'fail' ); ?>"><?php echo $t[( $t['result'] ? 'pass' : 'fail' )]; ?></li>
