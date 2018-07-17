@@ -9,7 +9,7 @@ define( 'GITHUB_USERNAME' , 'lucanos' );
 define( 'GITHUB_PROJECT'  , 'WordPress-Remote-Installer' );
 
 // Version Information
-define( 'WPRI_VERSION'    , '0.3' );
+define( 'WPRI_VERSION'    , '0.4' );
 
 // Suggested Plugins and Themes
 $suggestions = array(
@@ -115,6 +115,8 @@ function getGithubVersion(){
       && function_exists( 'curl_init' ) ){
     $ch = curl_init( str_replace( ' ' , '%20' , $versionURL ) );
     curl_setopt($ch , CURLOPT_TIMEOUT        , 50 );
+	curl_setopt($ch , CURLOPT_RETURNTRANSFER , true );
+	curl_setopt($ch , CURLOPT_HEADER         , false );
     curl_setopt($ch , CURLOPT_FOLLOWLOCATION , true );
     $remoteVersion = curl_exec( $ch );
     curl_close( $ch );
