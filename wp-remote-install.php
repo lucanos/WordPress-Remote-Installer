@@ -9,7 +9,7 @@ define( 'GITHUB_USERNAME' , 'lucanos' );
 define( 'GITHUB_PROJECT'  , 'WordPress-Remote-Installer' );
 
 // Version Information
-define( 'WPRI_VERSION'    , '0.4' );
+define( 'WPRI_VERSION'    , '0.4.1' );
 
 // Suggested Plugins and Themes
 $suggestions = array(
@@ -179,7 +179,7 @@ switch( $step ){
         'fail' => '<strong>allow_url_open</strong> is Disabled'
       ) ,
       array(
-        'result' => array_diff( glob( '*' ) , array( basename( __FILE__ ) , 'version.txt' ) ) ,
+        'result' => !count( array_diff( glob( '*' ) , array( basename( __FILE__ ) , 'version.txt' ) ) ) ,
         'pass' => 'The server is empty (apart from this file)' ,
         'fail' => 'The server is not empty.'
       )
