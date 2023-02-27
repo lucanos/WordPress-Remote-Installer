@@ -15,10 +15,10 @@ define( 'WPRI_VERSION'    , '0.4.1' );
 $suggestions = array(
 
   # Can be an Array of URLs for each Plugin, or a string URL for a text file with URLs for each Plugin on a new line
-  'plugins' => 'http://' . GITHUB_USERNAME . '.github.io/' . GITHUB_PROJECT .'/list-plugin.txt' ,
+  'plugins' => 'https://' . GITHUB_USERNAME . '.github.io/' . GITHUB_PROJECT .'/list-plugin.txt' ,
 
  # Can be an Array of URLs for each Theme, or a string URL for a text file with URLs for each Theme on a new line
-  'themes'  => 'http://' . GITHUB_USERNAME . '.github.io/' . GITHUB_PROJECT .'/list-theme.txt'
+  'themes'  => 'https://' . GITHUB_USERNAME . '.github.io/' . GITHUB_PROJECT .'/list-theme.txt'
 
 );
 
@@ -309,7 +309,7 @@ switch( $step ){
 ?>
 <!-- STEP 3 //-->
 <h1>Step 3/7: Installing Plugins</h1>
-<p>List the Download URLs for all WordPress Plugins, one per line</p>
+<p>List the Download URLs, or the slugs (e.g "classic-editor"), for all WordPress Plugins, one per line</p>
 <form method="post">
   <textarea name="plugins"><?php echo $suggest; ?></textarea>
   <input type="hidden" name="step" value="4" />
@@ -336,10 +336,14 @@ switch( $step ){
         $plugin_result = false;
         $plugin_message = 'UNKNOWN';
         $url = trim( $url );
+        if( !$url ) continue;
+        $title = $url;
+        if( preg_match( '/\/plugins\/([^\/]+)\//' , $url , $bits ) )
+          $url = $bits[1];
         if( strpos( $url , 'http' )!==0 )
-          $url = 'http://'.$url;
-        if( preg_match( '/^(https?\:\/\/?downloads\.wordpress\.org\/plugin\/)([^\.]+)((?:\.\d+)+)?\.zip$/' , $url , $bits ) )
-          $url = $bits[1].$bits[2].'.zip';
+          $url = 'https://downloads.wordpress.org/plugin/'.$url.'.zip';
+        if( preg_match( '/(?:([^\.\/]+)\.)(?:((?:\d+\.)*\d*)\.)?zip$/' , $url , $bits ) )
+          $title = $bits[1].' ('.( isset( $bits[2] ) ? 'v'.$bits[2] : '<em>latest version</em>' ).')';
         $get = @file_get_contents( $url );
         if( !$get ){
           $plugin_message = 'FAILED TO DOWNLOAD';
@@ -354,7 +358,7 @@ switch( $step ){
           @unlink( 'temp_plugin.zip' );
         }
 ?>
-  <li class="<?php echo ( $plugin_result ? 'pass' : 'fail' ); ?>">Installing <strong><?php echo $bits[2]; ?></strong> - <?php echo $plugin_message; ?></li>
+  <li class="<?php echo ( $plugin_result ? 'pass' : 'fail' ); ?>">Installing <strong><?php echo $title; ?></strong> - <?php echo $plugin_message; ?></li>
 <?php
       }
     }
@@ -406,9 +410,13 @@ switch( $step ){
         $theme_message = 'UNKNOWN';
         $url = trim( $url );
         if( !$url ) continue;
+        $title = $url;
+        if( preg_match( '/\/themes\/([^\/]+)\//' , $url , $bits ) )
+          $url = $bits[1];
         if( strpos( $url , 'http' )!==0 )
-          $url = 'http://'.$url;
-        preg_match( '/^(https?\:\/\/?wordpress.org\/extend\/themes\/download\/)([^\.]+)((?:\.\d+)+)\.zip$/' , $url , $bits );
+          $url = 'https://downloads.wordpress.org/theme/'.$url.'.zip';
+        if( preg_match( '/(?:([^\.\/]+)\.)(?:((?:\d+\.)*\d*)\.)?zip$/' , $url , $bits ) )
+          $title = $bits[1].' ('.( isset( $bits[2] ) ? 'v'.$bits[2] : '<em>latest version</em>' ).')';
         $get = @file_get_contents( $url );
         if( !$get ){
           $theme_message = 'FAILED TO DOWNLOAD';
@@ -421,7 +429,7 @@ switch( $step ){
             $theme_message = 'OK';
           }
 ?>
-  <li class="<?php echo ( $theme_result ? 'pass' : 'fail' ); ?>">Installing <strong><?php echo $bits[2]; ?>.zip</strong> - <?php echo $theme_message; ?></li>
+  <li class="<?php echo ( $theme_result ? 'pass' : 'fail' ); ?>">Installing <strong><?php echo $title; ?></strong> - <?php echo $theme_message; ?></li>
 <?php
           @unlink( 'temp_theme.zip' );
         }
