@@ -9,7 +9,7 @@ define( 'GITHUB_USERNAME' , 'lucanos' );
 define( 'GITHUB_PROJECT'  , 'WordPress-Remote-Installer' );
 
 // Version Information
-define( 'WPRI_VERSION'    , '0.4.1' );
+define( 'WPRI_VERSION'    , '0.5.2' );
 
 // Suggested Plugins and Themes
 $suggestions = array(
@@ -21,6 +21,30 @@ $suggestions = array(
   'themes'  => 'https://' . GITHUB_USERNAME . '.github.io/' . GITHUB_PROJECT .'/list-theme.txt'
 
 );
+
+// Delete Directory and Contents
+function deleteAll( $dir ){
+  echo '<pre>';
+  echo "\$dir\n=====\n{$dir}\n\n";
+  $directory_contents = scandir( $dir );
+  echo "\$directory_contents\n=====\n";
+  print_r( $directory_contents );
+  echo "\n\n";
+  foreach( array_diff( array( '.' , '..' ) , scandir( $dir ) ) as $k => $item ){
+    echo "$k = $item - ";
+    if( is_dir( $item ) ){
+      echo "directory\n";
+      deleteAll( $item );
+    }else{
+      echo "file\n";
+      unlink( $item );
+    }
+  }
+  rmdir( $dir );
+  echo '</pre>';
+}
+
+die();
 
 // Function for Extraction
 function extractSubFolder( $zipFile , $target = null , $subFolder = null ){
@@ -329,6 +353,10 @@ switch( $step ){
     $plugin_result = ( !file_exists( @unlink( dirname( __FILE__ ).'/wp-content/plugins/hello.php' ) || dirname( __FILE__ ).'/wp-content/plugins/hello.php' ) );
 ?>
   <li class="<?php echo ( $plugin_result ? 'pass' : 'fail' ); ?>">Delete Unneeded "Hello Dolly" Plugin - <?php echo ( $plugin_result ? 'OK' : 'FAILED' ); ?></li>
+<?php
+    $plugin_result = ( !is_dir( @deleteAll( dirname( __FILE__ ).'/wp-content/plugins/akismet' ) || dirname( __FILE__ ).'/wp-content/plugins/akismet' ) );
+?>
+  <li class="<?php echo ( $plugin_result ? 'pass' : 'fail' ); ?>">Delete Unneeded "Akismet Anti-Spam" Plugin - <?php echo ( $plugin_result ? 'OK' : 'FAILED' ); ?></li>
 <?php
     if( isset( $_POST['plugins'] ) ){
       $plugins = array_filter( explode( "\n" , $_POST['plugins'] ) );
