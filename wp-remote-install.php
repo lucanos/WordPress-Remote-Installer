@@ -44,8 +44,6 @@ function deleteAll( $dir ){
   echo '</pre>';
 }
 
-die();
-
 // Function for Extraction
 function extractSubFolder( $zipFile , $target = null , $subFolder = null ){
   if( is_null( $target ) )
